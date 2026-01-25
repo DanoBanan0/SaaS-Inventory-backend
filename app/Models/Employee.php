@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-// use Illuminate\Database\Eloquent\Casts\Attribute; // <--- Ya no necesitamos esto
 
 class Employee extends Model
 {
@@ -18,9 +17,6 @@ class Employee extends Model
         'status',
     ];
 
-    // ELIMINAMOS la función protected function status(): Attribute
-
-    // AGREGAMOS esto para que Laravel maneje el booleano automáticamente
     protected $casts = [
         'status' => 'boolean',
     ];

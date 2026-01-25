@@ -14,10 +14,8 @@ class UserController extends Controller
 
     public function index(Request $request)
     {
-        // Iniciamos la consulta cargando la relación 'role' para optimizar
         $query = User::with('role');
 
-        // Si hay búsqueda desde el frontend, filtramos
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -26,15 +24,12 @@ class UserController extends Controller
             });
         }
 
-        // Retornamos la lista
         return response()->json($query->get());
     }
 
     // Función auxiliar para obtener el ID de Developer dinámicamente
     private function getDeveloperRoleId()
     {
-        // Buscamos el rol que contenga "dev" o "developer" (ajusta según cómo lo guardaste)
-        // Usamos 'like' por si lo guardaste como "Developer" o "Web Developer"
         $role = Role::where('name', 'like', '%developer%')
             ->orWhere('name', 'like', '%dev%')
             ->first();
@@ -45,13 +40,10 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $devRoleId = $this->getDeveloperRoleId();
-        $currentUserRole = Auth::user()->role; // Asumimos relación 'role' en User model
+        $currentUserRole = Auth::user()->role;
 
-        // 1. REGLA: Solo un Developer puede crear otro Developer
-        // Verificamos si existe el rol dev, si el usuario intenta asignar ese rol, y si él mismo NO es dev
         if ($devRoleId && $request->role_id == $devRoleId) {
-            // Verificamos si el rol del usuario actual NO es developer
-            // (Comparando nombres para ser más seguros, o IDs)
+
             if (!$currentUserRole || !str_contains(strtolower($currentUserRole->name), 'developer')) {
                 return response()->json([
                     'message' => 'Acceso Denegado: Solo un Developer puede crear usuarios con este rol.'
@@ -83,18 +75,15 @@ class UserController extends Controller
         $devRoleId = $this->getDeveloperRoleId();
         $currentUser = Auth::user();
 
-        // Cargamos el rol del usuario que estamos editando
         $userRoleName = strtolower($user->role->name ?? '');
         $currentUserRoleName = strtolower($currentUser->role->name ?? '');
         $isCurrentDev = str_contains($currentUserRoleName, 'developer');
         $isTargetDev = str_contains($userRoleName, 'developer');
 
-        // 2. REGLA: Nadie (ni Admin) puede editar a un Developer, excepto otro Developer
         if ($isTargetDev && !$isCurrentDev) {
             return response()->json(['message' => 'Acceso Denegado: No tienes permisos para modificar a un Developer.'], 403);
         }
 
-        // 3. REGLA: Nadie puede ascender a alguien a Developer si no es Developer
         if ($devRoleId && $request->role_id == $devRoleId && !$isCurrentDev) {
             return response()->json(['message' => 'Acceso Denegado: Solo un Developer puede asignar este rol.'], 403);
         }
@@ -107,7 +96,6 @@ class UserController extends Controller
             'password' => 'nullable|string|min:8',
         ]);
 
-        // ... lógica de update igual que antes ...
         $data = [
             'name' => $request->name,
             'email' => $request->email,
@@ -128,7 +116,6 @@ class UserController extends Controller
         $currentUserRoleName = strtolower(Auth::user()->role->name ?? '');
         $targetRoleName = strtolower($user->role->name ?? '');
 
-        // 4. REGLA: Solo Developer borra Developer
         if (str_contains($targetRoleName, 'developer') && !str_contains($currentUserRoleName, 'developer')) {
             return response()->json(['message' => 'Acceso Denegado: Solo un Developer puede eliminar a otro Developer.'], 403);
         }

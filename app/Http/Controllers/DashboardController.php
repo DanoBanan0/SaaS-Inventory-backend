@@ -18,7 +18,6 @@ class DashboardController extends Controller
             'maintenance_devices' => Device::where('status', 'maintenance')->count(),
             'total_employees' => Employee::count(),
             'total_units' => Unit::count(),
-            // Últimos 5 movimientos para mostrar un resumen rápido
             'recent_devices' => Device::with('category', 'employee')->latest()->take(5)->get()
         ]);
     }

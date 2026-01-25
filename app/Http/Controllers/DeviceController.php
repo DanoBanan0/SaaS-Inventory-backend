@@ -109,7 +109,6 @@ class DeviceController extends Controller
      */
     public function update(Request $request, Device $device)
     {
-        // Validaciones básicas (puedes agregar más si necesitas)
         $request->validate([
             'inventory_code' => 'required|string|unique:devices,inventory_code,' . $device->id,
             'serial_number' => 'required|string',
@@ -118,17 +117,12 @@ class DeviceController extends Controller
         return DB::transaction(function () use ($request, $device) {
             $data = $request->all();
 
-            // 1. Manejo inteligente del Status
-            // Si el usuario cambia el empleado pero NO el status, asumimos "assigned" o "available" automáticamente.
-            // Si el usuario MANDA el status explícitamente, respetamos su decisión (prioridad).
             if ($request->has('employee_id') && !$request->has('status')) {
                 $data['status'] = $request->employee_id ? 'assigned' : 'available';
             }
 
-            // 2. Actualizar Specs (JSON)
-            // Si vienen specs nuevas, las actualizamos.
             if ($request->has('specs')) {
-                $data['specs'] = $request->specs; // Laravel casteará esto a JSON automáticamente por el modelo
+                $data['specs'] = $request->specs;
             }
 
             $device->update($data);

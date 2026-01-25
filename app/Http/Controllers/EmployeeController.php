@@ -9,15 +9,12 @@ class EmployeeController extends Controller
 {
     public function index(Request $request)
     {
-        // Traemos la unidad para mostrar "Juan Pérez (Informática)"
-        // También contamos cuántos dispositivos tiene asignados actualmente
         $query = Employee::with('unit')->withCount('devices');
 
         if ($request->has('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
-        // Filtro por unidad (opcional, para el futuro)
         if ($request->has('unit_id')) {
             $query->where('unit_id', $request->unit_id);
         }
@@ -30,9 +27,9 @@ class EmployeeController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'unit_id' => 'required|exists:units,id',
-            'email' => 'nullable|email|max:255|unique:employees,email', // Validación de email único
+            'email' => 'nullable|email|max:255|unique:employees,email', 
             'job_title' => 'nullable|string|max:255',
-            'status' => 'boolean' // Acepta true/false o 1/0
+            'status' => 'boolean'
         ]);
 
         $employee = Employee::create($request->all());
@@ -50,7 +47,6 @@ class EmployeeController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'unit_id' => 'required|exists:units,id',
-            // Ignoramos el email del propio empleado al validar unicidad
             'email' => 'nullable|email|max:255|unique:employees,email,' . $employee->id,
             'job_title' => 'nullable|string|max:255',
             'status' => 'boolean'
@@ -63,7 +59,6 @@ class EmployeeController extends Controller
 
     public function destroy(Employee $employee)
     {
-        // Evitar borrar si tiene equipos asignados (Regla de Oro del Inventario)
         if ($employee->devices()->where('status', 'assigned')->exists()) {
             return response()->json([
                 'message' => 'No se puede eliminar: El empleado tiene equipos asignados. Recíbelos primero.'

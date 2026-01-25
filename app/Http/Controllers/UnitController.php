@@ -9,7 +9,7 @@ class UnitController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Unit::withCount('employees'); // Contamos cuántos empleados tiene cada unidad
+        $query = Unit::withCount('employees');
 
         if ($request->has('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
@@ -47,7 +47,6 @@ class UnitController extends Controller
 
     public function destroy(Unit $unit)
     {
-        // Opcional: Evitar borrar si tiene empleados
         if ($unit->employees()->exists()) {
             return response()->json(['message' => 'No se puede eliminar una unidad con empleados activos.'], 422);
         }

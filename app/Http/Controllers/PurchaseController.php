@@ -11,7 +11,7 @@ class PurchaseController extends Controller
     {
         $query = Purchase::withCount('devices');
 
-        // 1. Filtro de búsqueda general (Proveedor o Factura)
+        // 1. Filtro de búsqueda general
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -20,7 +20,7 @@ class PurchaseController extends Controller
             });
         }
 
-        // 2. NUEVO: Filtro por Fecha Exacta
+        // 2. Filtro por Fecha Exacta
         if ($request->has('date') && $request->date != '') {
             $query->whereDate('purchase_date', $request->date);
         }
@@ -34,7 +34,7 @@ class PurchaseController extends Controller
             'provider' => 'required|string|max:255',
             'invoice_number' => 'required|string|max:255|unique:purchases,invoice_number',
             'purchase_date' => 'required|date',
-            'total_amount' => 'required|numeric|min:0', // <--- NUEVA REGLA
+            'total_amount' => 'required|numeric|min:0',
         ]);
 
         $purchase = Purchase::create($request->all());
@@ -53,7 +53,7 @@ class PurchaseController extends Controller
             'provider' => 'required|string|max:255',
             'invoice_number' => 'required|string|max:255|unique:purchases,invoice_number,' . $purchase->id,
             'purchase_date' => 'required|date',
-            'total_amount' => 'required|numeric|min:0', // <--- NUEVA REGLA
+            'total_amount' => 'required|numeric|min:0',
         ]);
 
         $purchase->update($request->all());
@@ -63,7 +63,6 @@ class PurchaseController extends Controller
 
     public function destroy(Purchase $purchase)
     {
-        // Regla de Oro: No borrar facturas que ya "dieron a luz" dispositivos
         if ($purchase->devices()->exists()) {
             return response()->json([
                 'message' => 'No se puede eliminar: Hay ' . $purchase->devices()->count() . ' dispositivos registrados con esta factura.'

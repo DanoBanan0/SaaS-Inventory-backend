@@ -69,13 +69,11 @@ class CategoryController extends Controller
         $request->validate([
             'label' => 'required|string',
             'type' => 'required|in:text,number,select,boolean',
-            // 'required' es opcional, default false
         ]);
 
-        // Generar key automática (ej: "Disco Duro" -> "disco_duro")
+        // Generar key automática
         $key = Str::slug($request->label, '_');
 
-        // Evitar duplicados de key en la misma categoría
         if ($category->fields()->where('key', $key)->exists()) {
             return response()->json(['message' => 'Este campo ya existe en esta categoría'], 422);
         }

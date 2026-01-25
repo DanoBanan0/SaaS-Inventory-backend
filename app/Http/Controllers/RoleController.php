@@ -9,7 +9,6 @@ class RoleController extends Controller
 {
     public function index()
     {
-        // Retornamos roles con el conteo de usuarios asignados
         return response()->json(Role::withCount('users')->get());
     }
 
@@ -37,7 +36,6 @@ class RoleController extends Controller
 
     public function destroy(Role $role)
     {
-        // Regla de Oro: No borrar roles que tienen usuarios activos
         if ($role->users()->exists()) {
             return response()->json([
                 'message' => 'No se puede eliminar: Hay ' . $role->users()->count() . ' usuarios con este rol.'
