@@ -16,7 +16,7 @@ class AdminUserSeeder extends Seeder
     public function run(): void
     {
         $role = Role::firstOrCreate(
-            ['name' => 'admin'],
+            ['name' => 'developer'],
         );
 
         User::create([
