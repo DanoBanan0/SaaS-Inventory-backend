@@ -38,4 +38,4 @@ RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.
 # Exponer el puerto
 EXPOSE 80
 
-RUN php artisan optimize
+CMD php artisan optimize && php artisan migrate --force && apache2-foreground
