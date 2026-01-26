@@ -21,7 +21,7 @@ return [
 
     'allowed_origins' => [
         env('FRONTEND_URL', '*'),
-        'https://tu-proyecto.vercel.app',
+        'inventory-frontend-kappa-ashy.vercel.app',
     ],
 
     'allowed_origins_patterns' => [],
