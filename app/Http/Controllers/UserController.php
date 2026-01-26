@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\Role; // <--- Importante: Importar el modelo Role
+use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -117,14 +117,15 @@ class UserController extends Controller
         $targetRoleName = strtolower($user->role->name ?? '');
 
         if (str_contains($targetRoleName, 'developer') && !str_contains($currentUserRoleName, 'developer')) {
-            return response()->json(['message' => 'Acceso Denegado: Solo un Developer puede eliminar a otro Developer.'], 403);
+            return response()->json(['message' => 'Acceso Denegado: Solo un Developer puede desactivar a otro Developer.'], 403);
         }
 
         if (Auth::id() === $user->id) {
-            return response()->json(['message' => 'No puedes eliminar tu propia cuenta.'], 403);
+            return response()->json(['message' => 'No puedes desactivar tu propia cuenta.'], 403);
         }
 
-        $user->delete();
-        return response()->json(null, 204);
+        $user->update(['is_active' => false]);
+
+        return response()->json(['message' => 'Usuario desactivado correctamente.']);
     }
 }

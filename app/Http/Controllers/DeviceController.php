@@ -50,6 +50,11 @@ class DeviceController extends Controller
             });
         }
 
+        //Filtrar por fecha de compra
+        if ($request->has('date') && $request->date != '') {
+            $query->whereDate('created_at', $request->date);
+        }
+
         if ($request->has('specs')) {
             foreach ($request->input('specs') as $key => $value) {
                 $query->where("specs->{$key}", $value);

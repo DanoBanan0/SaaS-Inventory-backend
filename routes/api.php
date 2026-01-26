@@ -11,6 +11,7 @@ use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\AuditController;
 
 Route::group([
     'middleware' => 'api',
@@ -32,4 +33,5 @@ Route::group(['middleware' => ['auth:api']], function () {
     Route::apiResource('roles', RoleController::class);
     Route::get('dashboard', [DashboardController::class, 'index']);
     Route::post('categories/{category}/fields', [CategoryController::class, 'addField']);
+    Route::get('/audits', [AuditController::class, 'index']);
 });

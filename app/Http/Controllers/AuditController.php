@@ -3,12 +3,17 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Spatie\Activitylog\Models\Activity;
+use OwenIt\Auditing\Models\Audit;
 
 class AuditController extends Controller
 {
     public function index()
     {
-        return Activity::with(['causer', 'subject'])->latest()->paginate(20);
+        return response()->json(
+            Audit::with('user') 
+                ->latest()
+                ->take(50)
+                ->get()
+        );
     }
 }
