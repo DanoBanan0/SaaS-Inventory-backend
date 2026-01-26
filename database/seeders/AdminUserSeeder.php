@@ -16,12 +16,12 @@ class AdminUserSeeder extends Seeder
     public function run(): void
     {
         $role = Role::firstOrCreate(
-            ['name' => 'admin'],
+            ['name' => 'developer'],
         );
 
         User::create([
-            'name' => 'Admin User',
-            'email' => 'admin@test.com',
+            'name' => 'Developer Daniel',
+            'email' => 'daniel@indes.com',
             'password' => Hash::make('password'),
             'role_id' => $role->id,
         ]);
