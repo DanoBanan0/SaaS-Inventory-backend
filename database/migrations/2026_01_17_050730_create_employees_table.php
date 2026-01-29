@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('employees', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('unit_id')->constrained('units');
+            $table->uuid('id')->primary();
+            $table->foreignUuid('unit_id')->constrained('units');
             $table->string('name');
             $table->string('email')->unique()->nullable();
             $table->string('job_title')->nullable();

@@ -12,15 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('devices', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->string('inventory_code')->unique();
             $table->string('serial_number')->unique();
             $table->string('model');
             $table->string('brand');
 
-            $table->foreignId('purchase_id')->constrained('purchases');
-            $table->foreignId('category_id')->constrained('categories');
-            $table->foreignId('employee_id')->nullable()->constrained('employees')->onDelete('set null');
+            $table->foreignUuid('purchase_id')->constrained('purchases');
+            $table->foreignUuid('category_id')->constrained('categories');
+            $table->foreignUuid('employee_id')->nullable()->constrained('employees')->onDelete('set null');
             
             $table->enum('status', ['available', 'assigned', 'maintenance', 'retired'])->default('available');
             $table->json('specs')->nullable();

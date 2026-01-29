@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('assignments', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('device_id')->constrained('devices');
-            $table->foreignId('employee_id')->constrained('employees');
-            $table->foreignId('assigned_by')->constrained('users');
+            $table->uuid('id')->primary();
+            $table->foreignUuid('device_id')->constrained('devices');
+            $table->foreignUuid('employee_id')->constrained('employees');
+            $table->foreignUuid('assigned_by')->constrained('users');
             $table->dateTime('assigned_at');
             $table->dateTime('returned_at')->nullable();
             $table->text('comment')->nullable();

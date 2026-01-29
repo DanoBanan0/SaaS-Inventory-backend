@@ -9,10 +9,11 @@ use Illuminate\Notifications\Notifiable;
 use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableTrait;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class User extends Authenticatable implements JWTSubject, Auditable
 {
-    use HasFactory, Notifiable, AuditableTrait;
+    use HasFactory, Notifiable, AuditableTrait, HasUuids;
 
     /**
      * The attributes that are mass assignable.

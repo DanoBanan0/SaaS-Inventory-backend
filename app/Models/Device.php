@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\Activitylog\LogOptions;
 use OwenIt\Auditing\Contracts\Auditable;
 use OwenIt\Auditing\Auditable as AuditableTrait;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class Device extends Model implements Auditable
 {
-    use HasFactory, AuditableTrait;
+    use HasFactory, AuditableTrait, HasUuids;
 
     protected $fillable = [
         'inventory_code',
