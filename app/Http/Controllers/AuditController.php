@@ -12,7 +12,7 @@ class AuditController extends Controller
         return response()->json(
             Audit::with('user') 
                 ->latest()
-                ->take(50)
+                ->take(15)
                 ->get()
         );
     }

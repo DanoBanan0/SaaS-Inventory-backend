@@ -7,7 +7,6 @@ use App\Models\Device;
 use App\Models\Assignment;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use PhpParser\Node\Expr\Assign;
 
 class DeviceController extends Controller
 {
@@ -106,7 +105,7 @@ class DeviceController extends Controller
      */
     public function show(Device $device)
     {
-        return $device->load(['category', 'employee', 'assignments', 'purchase']);
+        return $device->load(['category', 'employee', 'assignments.employee', 'purchase']);
     }
 
     /**
@@ -116,19 +115,53 @@ class DeviceController extends Controller
     {
         $request->validate([
             'inventory_code' => 'required|string|unique:devices,inventory_code,' . $device->id,
-            'serial_number' => 'required|string',
+            'serial_number' => 'required|string|unique:devices,serial_number,' . $device->id,
         ]);
 
         return DB::transaction(function () use ($request, $device) {
+            $oldEmployeeId = $device->employee_id;
+            $newEmployeeId = $request->employee_id;
+
+            if ($newEmployeeId === 'unassigned' || $newEmployeeId === '') {
+                $newEmployeeId = null;
+            }
+
             $data = $request->all();
+            $data['employee_id'] = $newEmployeeId;
 
             if ($request->has('employee_id') && !$request->has('status')) {
-                $data['status'] = $request->employee_id ? 'assigned' : 'available';
+                $data['status'] = $newEmployeeId ? 'assigned' : 'available';
             }
 
-            if ($request->has('specs')) {
-                $data['specs'] = $request->specs;
+            // --- GESTIÓN DEL HISTORIAL ---
+            if ($oldEmployeeId != $newEmployeeId) {
+
+                // 1. CERRAR la asignación anterior
+                if ($oldEmployeeId) {
+                    $lastAssignment = \App\Models\Assignment::where('device_id', $device->id)
+                        ->where('employee_id', $oldEmployeeId)
+                        ->whereNull('returned_at')
+                        ->latest()
+                        ->first();
+
+                    if ($lastAssignment) {
+                        $lastAssignment->update([
+                            'returned_at' => now(),
+                        ]);
+                    }
+                }
+
+                // 2. CREAR la nueva asignación
+                if ($newEmployeeId) {
+                    \App\Models\Assignment::create([
+                        'device_id' => $device->id,
+                        'employee_id' => $newEmployeeId,
+                        'assigned_by' => Auth::id(),
+                        'assigned_at' => now(),
+                    ]);
+                }
             }
+            // -----------------------------
 
             $device->update($data);
 
