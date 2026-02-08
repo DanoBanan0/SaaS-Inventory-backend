@@ -9,11 +9,11 @@ class AuditController extends Controller
 {
     public function index()
     {
+        // CAMBIO: Usamos paginate() en lugar de take()->get()
         return response()->json(
-            Audit::with('user') 
+            Audit::with('user')
                 ->latest()
-                ->take(15)
-                ->get()
+                ->paginate(15)
         );
     }
 }
