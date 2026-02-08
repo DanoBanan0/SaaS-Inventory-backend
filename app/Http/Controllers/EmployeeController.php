@@ -19,7 +19,7 @@ class EmployeeController extends Controller
             $query->where('unit_id', $request->unit_id);
         }
 
-        return $query->orderBy('name')->paginate(20);
+        return response()->json(Employee::with('unit')->paginate(15));
     }
 
     public function store(Request $request)
@@ -27,7 +27,7 @@ class EmployeeController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'unit_id' => 'required|exists:units,id',
-            'email' => 'nullable|email|max:255|unique:employees,email', 
+            'email' => 'nullable|email|max:255|unique:employees,email',
             'job_title' => 'nullable|string|max:255',
             'status' => 'boolean'
         ]);

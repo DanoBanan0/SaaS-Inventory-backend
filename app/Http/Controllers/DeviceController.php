@@ -60,7 +60,7 @@ class DeviceController extends Controller
             }
         }
 
-        return $query->latest()->paginate(20);
+        return response()->json($query->paginate(15));
     }
 
     /**
@@ -105,7 +105,7 @@ class DeviceController extends Controller
      */
     public function show(Device $device)
     {
-        return $device->load(['category', 'employee', 'assignments.employee', 'purchase']);
+        return response()->json($device->load(['category', 'employee', 'assignments.employee', 'purchase']));
     }
 
     /**
