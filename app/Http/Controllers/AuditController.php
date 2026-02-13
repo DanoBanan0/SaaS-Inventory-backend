@@ -31,8 +31,13 @@ class AuditController extends Controller
             $query->where('event', $request->event);
         }
 
-        if ($request->has('date') && $request->date) {
-            $query->whereDate('created_at', $request->date);
+        // Filtro por rango de fechas con ajuste de zona horaria (UTC-6)
+        if ($request->has('date_from') && $request->date_from) {
+            $query->whereRaw("DATE(DATE_SUB(created_at, INTERVAL 6 HOUR)) >= ?", [$request->date_from]);
+        }
+
+        if ($request->has('date_to') && $request->date_to) {
+            $query->whereRaw("DATE(DATE_SUB(created_at, INTERVAL 6 HOUR)) <= ?", [$request->date_to]);
         }
 
         $audits = $query->paginate(15);

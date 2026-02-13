@@ -50,8 +50,14 @@ class DeviceController extends Controller
         }
 
         //Filtrar por fecha de compra
-        if ($request->has('date') && $request->date != '') {
-            $query->whereDate('created_at', $request->date);
+        //Filtrar por rango de fechas
+        if ($request->has('date_from')) {
+            // Ajuste de zona horaria (UTC-6) para que coincida con la fecha local
+            $query->whereRaw("DATE(DATE_SUB(updated_at, INTERVAL 6 HOUR)) >= ?", [$request->date_from]);
+        }
+
+        if ($request->has('date_to')) {
+            $query->whereRaw("DATE(DATE_SUB(updated_at, INTERVAL 6 HOUR)) <= ?", [$request->date_to]);
         }
 
         if ($request->has('specs')) {
