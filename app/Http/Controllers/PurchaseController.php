@@ -30,7 +30,7 @@ class PurchaseController extends Controller
             return $query->orderBy('purchase_date', 'desc')->get();
         }
 
-        return $query->orderBy('purchase_date', 'desc')->paginate(20);
+        return $query->orderBy('purchase_date', 'desc')->paginate(25);
     }
 
     public function store(Request $request)

@@ -40,7 +40,7 @@ class AuditController extends Controller
             $query->whereRaw("DATE(DATE_SUB(created_at, INTERVAL 6 HOUR)) <= ?", [$request->date_to]);
         }
 
-        $audits = $query->paginate(15);
+        $audits = $query->paginate(25);
 
         // Resolver nombres de relaciones y del modelo auditado
         $audits->getCollection()->transform(function ($audit) {

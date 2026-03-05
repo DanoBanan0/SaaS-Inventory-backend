@@ -24,7 +24,7 @@ class UserController extends Controller
             });
         }
 
-        return $query->paginate(20);
+        return $query->paginate(25);
     }
 
     // Función auxiliar para obtener el ID de Developer dinámicamente

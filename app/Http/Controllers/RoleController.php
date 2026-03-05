@@ -15,7 +15,7 @@ class RoleController extends Controller
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
-        return $query->orderBy('name')->paginate(20);
+        return $query->orderBy('name')->paginate(25);
     }
 
     public function store(Request $request)

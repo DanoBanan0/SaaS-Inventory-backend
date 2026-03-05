@@ -24,7 +24,7 @@ class EmployeeController extends Controller
             return response()->json($query->orderBy('name')->get());
         }
 
-        return response()->json($query->paginate(15));
+        return response()->json($query->paginate(25));
     }
 
     public function store(Request $request)
