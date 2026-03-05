@@ -17,7 +17,7 @@ class DeviceController extends Controller
     {
         $query = Device::with(['category', 'employee.unit', 'purchase']);
 
-        //Fltrar por statdo (status)
+        //Filtrar por estado (status)
         if ($request->has('status')) {
             $query->where('status', $request->status);
         }
@@ -39,12 +39,14 @@ class DeviceController extends Controller
             $query->where('category_id', $request->category_id);
         }
 
+        //Búsqueda general (código, serie, modelo, marca o nombre de empleado)
         if ($request->has('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('inventory_code', 'like', "%{$search}%")
                     ->orWhere('serial_number', 'like', "%{$search}%")
                     ->orWhere('model', 'like', "%{$search}%")
+                    ->orWhere('brand', 'like', "%{$search}%") // Búsqueda por marca agregada
                     ->orWhereHas('employee', fn($e) => $e->where('name', 'like', "%{$search}%"));
             });
         }

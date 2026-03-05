@@ -7,9 +7,15 @@ use Illuminate\Http\Request;
 
 class RoleController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(Role::withCount('users')->get());
+        $query = Role::withCount('users');
+
+        if ($request->has('search') && $request->search != '') {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        return $query->orderBy('name')->paginate(20);
     }
 
     public function store(Request $request)

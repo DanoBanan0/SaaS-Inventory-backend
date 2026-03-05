@@ -25,6 +25,11 @@ class PurchaseController extends Controller
             $query->whereDate('purchase_date', $request->date);
         }
 
+        // Si piden todos (para dropdowns), retornar sin paginar
+        if ($request->has('all')) {
+            return $query->orderBy('purchase_date', 'desc')->get();
+        }
+
         return $query->orderBy('purchase_date', 'desc')->paginate(20);
     }
 
@@ -32,7 +37,7 @@ class PurchaseController extends Controller
     {
         $request->validate([
             'provider' => 'required|string|max:255',
-            'invoice_number' => 'required|string|max:255|unique:purchases,invoice_number',
+            'invoice_number' => 'required|string|max:255',
             'purchase_date' => 'required|date',
             'total_amount' => 'required|numeric|min:0',
         ]);
@@ -51,7 +56,7 @@ class PurchaseController extends Controller
     {
         $request->validate([
             'provider' => 'required|string|max:255',
-            'invoice_number' => 'required|string|max:255|unique:purchases,invoice_number,' . $purchase->id,
+            'invoice_number' => 'required|string|max:255',
             'purchase_date' => 'required|date',
             'total_amount' => 'required|numeric|min:0',
         ]);

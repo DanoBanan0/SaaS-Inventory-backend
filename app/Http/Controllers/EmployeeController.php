@@ -19,7 +19,12 @@ class EmployeeController extends Controller
             $query->where('unit_id', $request->unit_id);
         }
 
-        return response()->json(Employee::with('unit')->paginate(15));
+        // Si piden todos (para dropdowns), retornar sin paginar
+        if ($request->has('all')) {
+            return response()->json($query->orderBy('name')->get());
+        }
+
+        return response()->json($query->paginate(15));
     }
 
     public function store(Request $request)
