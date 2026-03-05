@@ -10,51 +10,40 @@ use Illuminate\Support\Facades\Auth;
 
 class DeviceController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
         $query = Device::with(['category', 'employee.unit', 'purchase']);
 
-        //Filtrar por estado (status)
         if ($request->has('status')) {
             $query->where('status', $request->status);
         }
 
-        //Filtrar 'Sin Asignar'
         if ($request->boolean('unassigned')) {
             $query->whereNull('employee_id');
         }
 
-        //Filtrar por unidad
         if ($request->has('unit')) {
             $query->whereHas('employee.unit', function ($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->unit . '%');
             });
         }
 
-        //Filtrar por categoria
         if ($request->has('category_id')) {
             $query->where('category_id', $request->category_id);
         }
 
-        //Búsqueda general (código, serie, modelo, marca o nombre de empleado)
         if ($request->has('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('inventory_code', 'like', "%{$search}%")
                     ->orWhere('serial_number', 'like', "%{$search}%")
                     ->orWhere('model', 'like', "%{$search}%")
-                    ->orWhere('brand', 'like', "%{$search}%") // Búsqueda por marca agregada
+                    ->orWhere('brand', 'like', "%{$search}%")
                     ->orWhereHas('employee', fn($e) => $e->where('name', 'like', "%{$search}%"));
             });
         }
 
-        //Filtrar por fecha de compra
-        //Filtrar por rango de fechas
         if ($request->has('date_from')) {
-            // Ajuste de zona horaria (UTC-6) para que coincida con la fecha local
             $query->whereRaw("DATE(DATE_SUB(updated_at, INTERVAL 6 HOUR)) >= ?", [$request->date_from]);
         }
 
@@ -71,9 +60,6 @@ class DeviceController extends Controller
         return response()->json($query->paginate(15));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -108,17 +94,11 @@ class DeviceController extends Controller
         });
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Device $device)
     {
         return response()->json($device->load(['category', 'employee', 'assignments.employee', 'purchase']));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Device $device)
     {
         $request->validate([
@@ -141,27 +121,21 @@ class DeviceController extends Controller
                 $data['status'] = $newEmployeeId ? 'assigned' : 'available';
             }
 
-            // --- GESTIÓN DEL HISTORIAL ---
             if ($oldEmployeeId != $newEmployeeId) {
-
-                // 1. CERRAR la asignación anterior
                 if ($oldEmployeeId) {
-                    $lastAssignment = \App\Models\Assignment::where('device_id', $device->id)
+                    $lastAssignment = Assignment::where('device_id', $device->id)
                         ->where('employee_id', $oldEmployeeId)
                         ->whereNull('returned_at')
                         ->latest()
                         ->first();
 
                     if ($lastAssignment) {
-                        $lastAssignment->update([
-                            'returned_at' => now(),
-                        ]);
+                        $lastAssignment->update(['returned_at' => now()]);
                     }
                 }
 
-                // 2. CREAR la nueva asignación
                 if ($newEmployeeId) {
-                    \App\Models\Assignment::create([
+                    Assignment::create([
                         'device_id' => $device->id,
                         'employee_id' => $newEmployeeId,
                         'assigned_by' => Auth::id(),
@@ -169,19 +143,10 @@ class DeviceController extends Controller
                     ]);
                 }
             }
-            // -----------------------------
 
             $device->update($data);
 
             return response()->json($device);
         });
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
     }
 }

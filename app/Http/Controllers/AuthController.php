@@ -8,17 +8,6 @@ use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
-    /**
-     * Create a new AuthController instance.
-     */
-    // public function __construct()
-    // {
-    //     $this->middleware('auth:api', ['except' => ['login', 'register']]);
-    // }
-
-    /**
-     * Get a JWT via given credentials.
-     */
     public function login()
     {
         $credentials = request(['email', 'password']);
@@ -35,34 +24,22 @@ class AuthController extends Controller
         return $this->respondWithToken($token);
     }
 
-    /**
-     * Get the authenticated User.
-     */
     public function me()
     {
         return response()->json(Auth::guard('api')->user());
     }
 
-    /**
-     * Log the user out (Invalidate the token).
-     */
     public function logout()
     {
         Auth::guard('api')->logout();
         return response()->json(['message' => 'Sesión cerrada exitosamente']);
     }
 
-    /**
-     * Refresh a token.
-     */
-    // public function refresh()
-    // {
-    //     return $this->respondWithToken(Auth::guard('api')->refresh());
-    // }
+    public function refresh()
+    {
+        return $this->respondWithToken(Auth::guard('api')->refresh());
+    }
 
-    /**
-     * Get the token array structure.
-     */
     protected function respondWithToken($token)
     {
         return response()->json([

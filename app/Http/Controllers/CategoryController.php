@@ -10,17 +10,11 @@ use App\Models\CategoryField;
 
 class CategoryController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         return Category::with('fields')->get();
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -33,35 +27,14 @@ class CategoryController extends Controller
 
         return DB::transaction(function () use ($request) {
             $category = Category::create(['name' => $request->name]);
-
             $category->fields()->createMany($request->fields);
-
             return response()->json($category->load('fields'), 201);
         });
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Category $category)
     {
         return $category->load('fields');
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
     }
 
     public function addField(Request $request, Category $category)
@@ -71,7 +44,6 @@ class CategoryController extends Controller
             'type' => 'required|in:text,number,select,boolean',
         ]);
 
-        // Generar key automática
         $key = Str::slug($request->label, '_');
 
         if ($category->fields()->where('key', $key)->exists()) {

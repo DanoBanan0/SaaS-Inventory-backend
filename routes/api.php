@@ -24,14 +24,49 @@ Route::group([
 });
 
 Route::group(['middleware' => ['auth:api']], function () {
-    Route::apiResource('units', UnitController::class);
-    Route::apiResource('employees', EmployeeController::class);
-    Route::apiResource('categories', CategoryController::class);
-    Route::apiResource('purchases', PurchaseController::class);
-    Route::apiResource('devices', DeviceController::class);
-    Route::apiResource('users', UserController::class);
-    Route::apiResource('roles', RoleController::class);
     Route::get('dashboard', [DashboardController::class, 'index']);
-    Route::post('categories/{category}/fields', [CategoryController::class, 'addField']);
+    Route::get('units', [UnitController::class, 'index']);
+    Route::get('units/{unit}', [UnitController::class, 'show']);
+    Route::get('employees', [EmployeeController::class, 'index']);
+    Route::get('employees/{employee}', [EmployeeController::class, 'show']);
+    Route::get('categories', [CategoryController::class, 'index']);
+    Route::get('categories/{category}', [CategoryController::class, 'show']);
+    Route::get('purchases', [PurchaseController::class, 'index']);
+    Route::get('purchases/{purchase}', [PurchaseController::class, 'show']);
+    Route::get('devices', [DeviceController::class, 'index']);
+    Route::get('devices/{device}', [DeviceController::class, 'show']);
+    Route::get('users', [UserController::class, 'index']);
+    Route::get('roles', [RoleController::class, 'index']);
     Route::get('/audits', [AuditController::class, 'index']);
+    Route::get('/audits/export', [AuditController::class, 'exportAll']);
+
+    Route::middleware('role')->group(function () {
+        Route::post('units', [UnitController::class, 'store']);
+        Route::put('units/{unit}', [UnitController::class, 'update']);
+        Route::delete('units/{unit}', [UnitController::class, 'destroy']);
+
+        Route::post('employees', [EmployeeController::class, 'store']);
+        Route::put('employees/{employee}', [EmployeeController::class, 'update']);
+        Route::delete('employees/{employee}', [EmployeeController::class, 'destroy']);
+
+        Route::post('categories', [CategoryController::class, 'store']);
+        Route::post('categories/{category}/fields', [CategoryController::class, 'addField']);
+
+        Route::post('purchases', [PurchaseController::class, 'store']);
+        Route::put('purchases/{purchase}', [PurchaseController::class, 'update']);
+        Route::delete('purchases/{purchase}', [PurchaseController::class, 'destroy']);
+
+        Route::post('devices', [DeviceController::class, 'store']);
+        Route::put('devices/{device}', [DeviceController::class, 'update']);
+
+        Route::post('users', [UserController::class, 'store']);
+        Route::put('users/{user}', [UserController::class, 'update']);
+        Route::delete('users/{user}', [UserController::class, 'destroy']);
+
+        Route::post('roles', [RoleController::class, 'store']);
+        Route::put('roles/{role}', [RoleController::class, 'update']);
+        Route::delete('roles/{role}', [RoleController::class, 'destroy']);
+
+        Route::delete('/audits', [AuditController::class, 'deleteAll']);
+    });
 });

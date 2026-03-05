@@ -57,6 +57,56 @@ class AuditController extends Controller
     }
 
     /**
+     * Exportar todos los registros de auditoría (sin paginación)
+     */
+    public function exportAll(Request $request)
+    {
+        $query = Audit::with('user')->latest();
+
+        if ($request->has('search') && $request->search) {
+            $query->whereHas('user', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        if ($request->has('date_from') && $request->date_from) {
+            $query->whereRaw("DATE(DATE_SUB(created_at, INTERVAL 6 HOUR)) >= ?", [$request->date_from]);
+        }
+
+        if ($request->has('date_to') && $request->date_to) {
+            $query->whereRaw("DATE(DATE_SUB(created_at, INTERVAL 6 HOUR)) <= ?", [$request->date_to]);
+        }
+
+        $audits = $query->get();
+
+        $audits->transform(function ($audit) {
+            $audit->old_values = $this->resolveRelationNames($audit->old_values);
+            $audit->new_values = $this->resolveRelationNames($audit->new_values);
+            $audit->auditable_name = $this->getAuditableName($audit);
+            return $audit;
+        });
+
+        // Filtrar asignaciones
+        $audits = $audits->filter(function ($audit) {
+            return !str_contains($audit->auditable_type, 'Assignment');
+        })->values();
+
+        return response()->json($audits);
+    }
+
+    /**
+     * Vaciar todos los registros de auditoría
+     */
+    public function deleteAll()
+    {
+        Audit::truncate();
+
+        return response()->json([
+            'message' => 'Todos los registros de auditoría han sido eliminados.'
+        ]);
+    }
+
+    /**
      * Resuelve los IDs de relaciones a nombres legibles
      */
     private function resolveRelationNames(array $values): array
